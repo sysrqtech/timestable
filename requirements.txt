@@ -2,6 +2,8 @@ bottle==0.12.13
 certifi==2017.11.5
 chardet==3.0.4
 cloudconvert==1.0.0
+gunicorn==19.7.1
 idna==2.6
+imgurpython==1.1.7
 requests==2.18.4
 urllib3==1.22
