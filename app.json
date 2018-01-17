@@ -1,0 +1,16 @@
+{
+  "name": "TimeStable",
+  "description": "Рассылка docx-расписания ВКонтакте (используя https://vk.com/app5748831)",
+  "website": "https://vk.me/sysrqtech",
+  "env": {
+    "MAILING_API_KEY": {
+      "description": "Ключ доступа к API рассылок, создаётся в настройках приложения"
+    },
+    "MAILING_LIST_ID": {
+      "description": "ID списка рассылки, находится слева от названия на вкладке управления списками"
+    },
+    "CLOUDCONVERT_KEY": {
+      "description": "Ключ API сервиса CloudConvert"
+    }
+  }
+}

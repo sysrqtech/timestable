@@ -1,47 +1,69 @@
-﻿import os
-from urllib import parse
+﻿# coding=utf-8
+import os
+from base64 import encodebytes
 
+import requests
 import cloudconvert
 from imgurpython import ImgurClient
 from bottle import Bottle, request
 
-CC_KEY = "JwP_NWhtTamM56Edy67QbM8Zn-p1uWjxffgd9qzmem8RkJBUbafcVLCOszxV83dWXoYsmQqDoQdw0Umk0CNIrw"
 
-IMGUR_KEY = "fd74deb2e272b12"
-IMGUR_SECRET = "7f777d5fb7109bacc24e2d1667ed32494a6754a5"
+def required_env(name):
+    """
+    Raise error, if environment variable can't be found, else return it's value
+    """
+    value = os.environ.get(name)
+    if value is None:
+        raise AttributeError("Environment variable %s is not set" % name)
+    return value
 
-MAILING_KEY = "api_8794_huFozpVbH5mKfOIkpgLKUaML"
-MAILING_URI = "https://broadcast.vkforms.ru/api/v2/broadcast?"
-LIST_ID = 193621
+
+CC_KEY = required_env("CLOUDCONVERT_KEY")
+
+LIST_ID = int(required_env("MAILING_LIST_ID"))
+MAILING_URI = "https://broadcast.vkforms.ru/api/v2/broadcast?token=" + required_env("MAILING_KEY")
 
 app = Bottle()
 cc = cloudconvert.Api(CC_KEY)
 imgur = ImgurClient(IMGUR_KEY, IMGUR_SECRET)
 
 
-def send_mailing(image):
-
+def vk_send(image_url):
+    data = dict(
+        message=dict(
+            images=[image_url]
+        ),
+        list_ids=[LIST_ID],
+        run_now=1
+    )
+    requests.post(MAILING_URI, json=data)
 
 
 def docx_to_image(doc):
-    process = cc.convert(dict(
+    doc = encodebytes(doc).decode("utf-8")
+    process = cc.createProcess(dict(
         inputformat="docx",
+        outputformat="png"
+    ))
+    process.start(dict(
         outputformat="png",
-        input="upload",
-        save=True,
-        file=doc
+        input="base64",
+        file=doc,
+        filename="timetable.docx",
+        wait=True
     ))
     process.wait()
-    return process.data
+    return "https:" + process.data["output"]["url"]
 
 
 @app.post('/send')
-def process():
-    img = docx_to_image(request.body)
+def send():
+    image_url = docx_to_image(request.body.read())
+    vk_send(image_url)
 
 
 if os.environ.get("APP_LOCATION") == "heroku":
-    port=int(os.environ.get("PORT", 5000))
+    port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, server="gunicorn")
 else:
     app.run(host="localhost", port=8080, debug=True)
