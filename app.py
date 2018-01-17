@@ -25,7 +25,6 @@ MAILING_URI = "https://broadcast.vkforms.ru/api/v2/broadcast?token=" + required_
 
 app = Bottle()
 cc = cloudconvert.Api(CC_KEY)
-imgur = ImgurClient(IMGUR_KEY, IMGUR_SECRET)
 
 
 def vk_send(image_url):
