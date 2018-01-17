@@ -61,8 +61,5 @@ def send():
     vk_send(image_url)
 
 
-if os.environ.get("APP_LOCATION") == "heroku":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, server="gunicorn")
-else:
-    app.run(host="localhost", port=8080, debug=True)
+port = int(os.environ.get("PORT", 5000))
+app.run(host="0.0.0.0", port=port, server="gunicorn")
