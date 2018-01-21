@@ -1,6 +1,6 @@
 ﻿# coding=utf-8
 import os
-from base64 import encodebytes
+import base64
 
 import requests
 import cloudconvert
@@ -27,10 +27,10 @@ app = Bottle()
 cc = cloudconvert.Api(CC_KEY)
 
 
-def vk_send(image_url):
+def vk_send(image_urls):
     data = dict(
         message=dict(
-            images=[image_url]
+            images=image_urls
         ),
         list_ids=[LIST_ID],
         run_now=1
@@ -39,7 +39,7 @@ def vk_send(image_url):
 
 
 def docx_to_image(doc):
-    doc = encodebytes(doc).decode("utf-8")
+    doc = base64.encodebytes(doc).decode("utf-8")
     process = cc.createProcess(dict(
         inputformat="docx",
         outputformat="png"
@@ -49,16 +49,21 @@ def docx_to_image(doc):
         input="base64",
         file=doc,
         filename="timetable.docx",
-        wait=True
+        wait="true",
+	save="true"
     ))
     process.wait()
-    return "https:" + process.data["output"]["url"]
+
+    download_url = "https:{url}".format(**process.data["output"])
+    if "files" not in process.data["output"]:
+        return [download_url]
+    return ["{0}/{1}".format(download_url, filename) for filename in process["output"]["files"]]
 
 
 @app.post('/send')
 def send():
-    image_url = docx_to_image(request.body.read())
-    vk_send(image_url)
+    image_urls = docx_to_image(request.body.read())
+    vk_send(image_urls)
 
 
 port = int(os.environ.get("PORT", 5000))
