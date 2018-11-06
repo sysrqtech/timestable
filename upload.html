@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Разослать расписание</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.2.0/min/dropzone.min.css" />
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.2.0/min/dropzone.min.js"></script>
+    <style>
+        html, body {
+            background: rgb(243, 244, 245);
+            color: rgb(100, 108, 127);
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            line-height: 1.4rem;
+            font-family: Roboto, "Open Sans", sans-serif;
+            font-size: 30px;
+            font-weight: 300;
+        }
+
+        .dropzone {
+            display: flex;
+            flex: 1;
+            align-items: center;
+            justify-content: center;
+            margin: 12px;
+            background: white;
+            border-radius: 5px;
+            border: 2px dashed rgb(0, 135, 247);
+            border-image: none;
+        }
+
+        #dropzone {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            align-items: stretch;
+            align-content: stretch;
+        }
+    </style>
+    <script type="text/javascript">
+        Dropzone.autoDiscover = false;
+    </script>
+</head>
+<body>
+    <div id="dropzone">
+        <form class="dropzone needsclick" id="file-upload" action="/send" enctype="multipart/form-data">
+            <div class="fallback">
+                <input type="file" name="file" />
+            </div>
+            <div class="dz-message needsclick">Выбрать файл</div>
+        </form>
+    </div>
+    <script type="text/javascript">
+        let upload = new Dropzone("#file-upload", {});
+        upload.on("complete", file => upload.removeFile(file));
+        upload.on("error", (file, errorMessage) => toastr.error(errorMessage));
+        upload.on("success", (file, response) => toastr.success("Рассылка отправлена"))
+    </script>
+</body>
+</html>

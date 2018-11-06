@@ -1,11 +1,12 @@
-﻿# coding=utf-8
+﻿#!/usr/bin/env python3
+# coding=utf-8
+
+import io
 import os
-import base64
 
 import requests
 import cloudconvert
-from imgurpython import ImgurClient
-from bottle import Bottle, request
+from bottle import Bottle, request, template
 
 
 def required_env(name):
@@ -39,18 +40,18 @@ def vk_send(image_urls):
 
 
 def docx_to_image(doc):
-    doc = base64.encodebytes(doc).decode("utf-8")
+    doc = io.BufferedReader(doc)
     process = cc.createProcess(dict(
         inputformat="docx",
         outputformat="png"
     ))
     process.start(dict(
         outputformat="png",
-        input="base64",
+        input="upload",
         file=doc,
         filename="timetable.docx",
         wait="true",
-	save="true"
+        save="true"
     ))
     process.wait()
 
@@ -60,9 +61,15 @@ def docx_to_image(doc):
     return ["{0}/{1}".format(download_url, filename) for filename in process["output"]["files"]]
 
 
-@app.post('/send')
+@app.get("/")
+def browser_page():
+    return template("upload.html")
+
+
+@app.post("/send")
 def send():
-    image_urls = docx_to_image(request.body.read())
+    upload = request.files.get("file").file
+    image_urls = docx_to_image(upload)
     vk_send(image_urls)
 
 
