@@ -5,4 +5,4 @@ cloudconvert==1.0.0
 gunicorn==19.7.1
 idna==2.6
 requests==2.18.4
-urllib3==1.22
+urllib3==1.24.2
